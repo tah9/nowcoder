@@ -65,13 +65,48 @@ ListNode *createListNode(int arr[], int len) {
     return h;
 }
 
+
+ListNode *Merge(ListNode *pHead1, ListNode *pHead2) {
+
+    ListNode *head = new ListNode(-1001), *last = head;
+    while (pHead1 && pHead2) {
+        if (pHead1->val <= pHead2->val) {//1<2,1右移
+            last->next = pHead1;
+            pHead1 = pHead1->next;
+        } else {
+            last->next = pHead2;
+            pHead2 = pHead2->next;
+        }
+        last=last->next;
+    }
+    while (pHead1) {
+        last->next = pHead1;
+        pHead1 = pHead1->next;
+        last=last->next;
+
+    }
+    while (pHead2) {
+        last->next = pHead2;
+        pHead2 = pHead2->next;
+        last=last->next;
+
+    }
+    return head->next;
+}
+
 int main(void) {
-    int arr[] = {1, 2, 3, 3, 4, 4, 5};
+    int arr1[] = {1, 3, 5};
+    int arr2[] = {2, 4, 6};
 //    int arr[] = {1, 1};
-    ListNode *head = createListNode(arr, len(arr));
-    printListNode(head);
-    ListNode *h = deleteDuplication(head);
-    printListNode(h);
+    ListNode *head = createListNode(arr1, len(arr1));
+    ListNode *head2 = createListNode(arr2, len(arr2));
+
+    ListNode *m = Merge(head, head2);
+
+
+    printListNode(m);
+//    ListNode *h = deleteDuplication(head);
+//    printListNode(h);
 
     return 0;
 }
