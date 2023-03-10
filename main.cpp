@@ -128,11 +128,9 @@ string ReverseSentence(string str) {
     vector<string> vStr;
     int startIndex = 0;
     int len = 0;
+
     for (int i = 0; i < str.length(); ++i) {
         if (str[i] == ' ') {
-//            if(len==0){
-//                len=1;
-//            }
             vStr.push_back(str.substr(startIndex, len));
             startIndex = i + 1;
             len = 0;
@@ -147,24 +145,131 @@ string ReverseSentence(string str) {
         resultStr += (vStr.back() + " ");
         vStr.pop_back();
     }
-    return resultStr.substr(0, resultStr.length()-1);
+    return resultStr.substr(0, resultStr.length() - 1);
+}
+
+bool IsPopOrder(vector<int> stack, vector<int> sequence) {
+    vector<int> temp;
+    int stackIndex = 0, sequenceIndex = 0;
+    for (; stackIndex < stack.size(); stackIndex++) {
+        temp.push_back(stack[stackIndex]);
+        while (!temp.empty() && temp.back() == sequence[sequenceIndex]) {
+            temp.pop_back();
+            sequenceIndex++;
+        }
+    }
+    return temp.empty();
+}
+
+vector<int> maxInWindows(const vector<int> &num, unsigned int size) {
+    vector<int> result;
+    if (size > num.size() || size == 0)
+        return result;
+    int maxIndex = -1;
+    for (int i = 0; i < num.size() - size + 1; ++i) {
+        if (maxIndex >= i
+            && result.back() >= num[i + size - 1]) {
+            result.push_back(result.back());
+            continue;
+        }
+        int max = -10001;
+        for (int j = i; j < i + size; ++j) {
+            if (num[j] > max) {
+                max = num[j] > max ? num[j] : max;
+                maxIndex = j;
+            }
+        }
+        result.push_back(max);
+    }
+
+    return result;
+}
+
+
+/*
+ * 两条链表拼接在一起，路径相同，若有共同节点，会会合。
+ */
+ListNode *FindFirstCommonNode(ListNode *pHead1, ListNode *pHead2) {
+    ListNode *p1 = pHead1, *p2 = pHead2;//保存两个链表头节点
+    while (pHead1 && pHead2) {
+        if (pHead1->val == pHead2->val) {
+            return pHead1;
+        }
+        pHead1 = pHead1->next;
+        pHead2 = pHead2->next;
+        if (pHead1 == nullptr) {//自己链表走完走另一条链，两个链表路程相等。
+            pHead1 = p2;
+            p2 = nullptr;
+        }
+        if (pHead2 == nullptr) {
+            pHead2 = p1;
+            p1 = nullptr;
+        }
+
+    }
+    return nullptr;
+}
+
+ListNode *ReverseList(ListNode *pHead) {
+    if (pHead == nullptr) {
+        return nullptr;
+    }
+    ListNode *preNode = nullptr, *rearNode = nullptr;
+    while (pHead) {
+        rearNode = pHead->next;
+        pHead->next = preNode;
+        preNode = pHead;
+        pHead = rearNode;
+    }
+    delete rearNode;
+    delete pHead;
+    return preNode;
+}
+
+ListNode *EntryNodeOfLoop(ListNode *pHead) {
+    int arr[13], index = 0;
+    while (index < 13) {
+        arr[index++] = pHead->val;
+        pHead = pHead->next;
+        if (pHead == nullptr) {
+            return nullptr;
+        }
+        for (int i = 0; i < index; ++i) {
+            if (pHead->val == arr[i]) {
+                return pHead;
+            }
+        }
+    }
+    return nullptr;
 }
 
 int main(void) {
-    string originStr = "nowcoder. a am I dsfsd";
-    string str = ReverseSentence(originStr);
-    printf("%s", str.c_str());
+    int a1[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+//    int a2[1] = {5};
+    ListNode *p1 = createListNode(a1, 13);;
+    auto temp = p1->next->next->next->next->next->next->next;
+    auto back = p1;
+    while (p1->next) {
+        p1 = p1->next;
+    }
+    p1->next = temp;
+
+    EntryNodeOfLoop(back);
+//    printListNode(back);
+//    printListNode(p);
+
+//    printListNode(ReverseList(p1));
+//    ListNode *p2 = createListNode(a2, 1);
+//    printf("%d", FindFirstCommonNode(p1, p2) == nullptr);
+//    printf("%d", 3 > -100);
+//    maxInWindows(vector<int>{2, 3, 4, 2, 6, 2, 5, 1}, 3);
+//    string originStr = "nowcoder. a am I dsfsd";
+//    string str = ReverseSentence(originStr);
+//    printf("%s", str.c_str());
 //    printf("%s", originStr.substr(10,1).c_str());
-//    vector<int> v1{1,2,3,4,5};
-//    vector<int> v2{4,5,3,2,1};
-//    for(auto item:v1){
-//        if (item==2){
-//            v1.pop_back();
-//        }
-//    }
-//    for(auto item:v1){
-//        printf("%d\n", item);
-//    }
+//    vector<int> v1{1, 2, 3, 4, 5};
+//    vector<int> v2{2, 1, 3, 5, 4};
+//    printf("%d", IsPopOrder(v1, v2));
 
 
 
