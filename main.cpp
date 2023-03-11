@@ -243,18 +243,141 @@ ListNode *EntryNodeOfLoop(ListNode *pHead) {
     return nullptr;
 }
 
-int main(void) {
-    int a1[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-//    int a2[1] = {5};
-    ListNode *p1 = createListNode(a1, 13);;
-    auto temp = p1->next->next->next->next->next->next->next;
-    auto back = p1;
-    while (p1->next) {
-        p1 = p1->next;
+ListNode *FindKthToTail(ListNode *pHead, int k) {
+    // write code here
+    if (pHead == nullptr) {
+        return nullptr;
     }
-    p1->next = temp;
+    int len = 0;
+    ListNode *bakHead = pHead;
+    while (pHead) {
+        len++;
+        pHead = pHead->next;
+    }
+    if (k > len) {
+        return nullptr;
+    }
+    int step = len - k;
+    while (step--) {
+        bakHead = bakHead->next;
+    }
+    return bakHead;
+}
 
-    EntryNodeOfLoop(back);
+ListNode *deleteNode(ListNode *head, int val) {
+    // write code here
+
+    ListNode *bakHead = head, *temp;
+    while (head) {
+        if (bakHead->val == val) {
+            bakHead = bakHead->next;
+            break;
+        }
+        if (head->val == val) {
+            temp->next = head->next;
+            break;
+        }
+        temp = head;
+        head = head->next;
+    }
+    return bakHead;
+}
+
+struct RandomListNode {
+    int label;
+    struct RandomListNode *next, *random;
+
+    RandomListNode(int x) :
+            label(x), next(NULL), random(NULL) {
+    }
+};
+
+RandomListNode *Clone(RandomListNode *pHead) {
+}
+
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};
+
+int TreeDepth(TreeNode *pRoot) {
+    //空节点没有深度
+    if (pRoot == NULL)
+        return 0;
+    //返回子树深度+1
+    return max(TreeDepth(pRoot->left), TreeDepth(pRoot->right)) + 1;
+
+
+    int depth = 1;
+    int step = 1;
+    if (pRoot == nullptr) {
+        return 0;
+    }
+    TreeNode *root = pRoot, *bak = root;
+    while (pRoot) {
+
+        if (pRoot->left) {//左边能走
+            bak = pRoot;
+            pRoot = pRoot->left;
+        } else if (pRoot->right) {//右边能走
+            bak = pRoot;
+            pRoot = pRoot->right;
+        } else {//走到底部了，回退并删除底部节点，保存最大步数
+            if (bak->left) {
+                bak->left = nullptr;
+            } else if (bak->right) {
+                bak->right = nullptr;
+            } else {//根节点无路可走，删光了
+                break;
+            }
+
+            depth = step > depth ? step : depth;
+
+            pRoot = root;//从起点重新开始
+            step = 1;
+
+            continue;
+        }
+        step++;
+
+    }
+
+    return depth;
+
+}
+
+int main(void) {
+    TreeNode *root = new TreeNode(1);
+    TreeNode *r2 = new TreeNode(2);
+    TreeNode *r3 = new TreeNode(3);
+    TreeNode *r4 = new TreeNode(4);
+    TreeNode *r5 = new TreeNode(5);
+    TreeNode *r6 = new TreeNode(6);
+    TreeNode *r7 = new TreeNode(7);
+    root->left = r2;
+    root->right = r3;
+    r2->left = r4;
+    r2->right = r5;
+    r5->left = r7;
+    r3->right = r6;
+    TreeDepth(root);
+//    printf("%d", max(nullptr, nullptr));
+//    int a1[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+//    int a2[1] = {5};
+//    ListNode *p1 = createListNode(a1, 13);;
+//    auto temp = p1->next->next->next->next->next->next->next;
+//    auto back = p1;
+//    while (p1->next) {
+//        p1 = p1->next;
+//    }
+//    p1->next = temp;
+
+//    deleteNode(p1, 5);
 //    printListNode(back);
 //    printListNode(p);
 
