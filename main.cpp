@@ -351,6 +351,63 @@ int TreeDepth(TreeNode *pRoot) {
 
 }
 
+vector<int> PrintFromTopToBottom(TreeNode *pRoot) {
+    int step = 1;
+    vector<int> result;
+    if (pRoot == nullptr) {
+        return result;
+    }
+    vector<vector<int>> vDepth;
+
+    TreeNode *root = pRoot, *bak = root;
+    while (pRoot) {
+        if (vDepth.size() < step) {//创建各层级队列
+            vDepth.emplace_back(vector<int>{});
+        }
+
+        if (pRoot->left) {//左边能走
+            bak = pRoot;
+            pRoot = pRoot->left;
+        } else if (pRoot->right) {//右边能走
+            bak = pRoot;
+            pRoot = pRoot->right;
+        } else {//走到底部了，回退并删除底部节点，保存最大步数
+
+            //添加层级数据
+            vDepth[step - 1].emplace_back(pRoot->val);
+
+
+            if (bak->left) {
+                bak->left = nullptr;
+            } else if (bak->right) {
+                bak->right = nullptr;
+            } else {//根节点无路可走，删光了
+                break;
+            }
+            delete pRoot;
+
+            pRoot = root;//从起点重新开始
+            step = 1;
+
+            continue;
+        }
+        step++;
+
+    }
+    delete root;delete bak;
+    for (int i = 0; i < vDepth.size(); i++) {
+        vector<int> curDepth = vDepth[i];
+        for (int j = 0; j < curDepth.size(); ++j) {
+            result.emplace_back(curDepth[j]);
+        }
+        curDepth.clear();
+        curDepth.shrink_to_fit();
+    }
+    vDepth.clear();
+    vDepth.shrink_to_fit();
+    return result;
+}
+
 int main(void) {
     TreeNode *root = new TreeNode(1);
     TreeNode *r2 = new TreeNode(2);
@@ -365,7 +422,7 @@ int main(void) {
     r2->right = r5;
     r5->left = r7;
     r3->right = r6;
-    TreeDepth(root);
+    PrintFromTopToBottom(root);
 //    printf("%d", max(nullptr, nullptr));
 //    int a1[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 //    int a2[1] = {5};
