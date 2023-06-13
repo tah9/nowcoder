@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <queue>
+#include <algorithm>
+#include <string.h>
 
 #define len(a) (sizeof(a)/sizeof(a[0]))
 using namespace std;
@@ -11,6 +14,8 @@ struct ListNode {
     ListNode(int x) :
             val(x), next(NULL) {
     }
+
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
 vector<int> printListFromTailToHead(ListNode *head) {
@@ -394,7 +399,8 @@ vector<int> PrintFromTopToBottom(TreeNode *pRoot) {
         step++;
 
     }
-    delete root;delete bak;
+    delete root;
+    delete bak;
     for (int i = 0; i < vDepth.size(); i++) {
         vector<int> curDepth = vDepth[i];
         for (int j = 0; j < curDepth.size(); ++j) {
@@ -407,26 +413,416 @@ vector<int> PrintFromTopToBottom(TreeNode *pRoot) {
     vDepth.shrink_to_fit();
     return result;
 }
+//BFS 之字形打印
+//vector<vector<int> > Print(TreeNode* pRoot) {
+//    vector<vector<int>> result;
+//    queue<TreeNode*> que;
+//    que.emplace(pRoot);
+//    while(!que.empty()){
+//        TreeNode *cur=que.front();
+//        que.pop();
+//        if (cur->left){
+//            que.emplace(cur->left);
+//        }
+//        if (cur->right){
+//            que.emplace(cur->right);
+//        }
+//    }
+//}
+
+
+//之字形打印
+vector<vector<int>> Print(TreeNode *pRoot) {
+    int step = 1;
+    vector<int> result;
+
+    vector<vector<int>> vDepth;
+    if (pRoot == nullptr) {
+        return vDepth;
+    }
+    TreeNode *root = pRoot, *bak = root;
+    while (pRoot) {
+        if (vDepth.size() < step) {//创建各层级队列
+            vDepth.emplace_back(vector<int>{});
+        }
+
+        if (pRoot->left) {//左边能走
+            bak = pRoot;
+            pRoot = pRoot->left;
+        } else if (pRoot->right) {//右边能走
+            bak = pRoot;
+            pRoot = pRoot->right;
+        } else {//走到底部了，回退并删除底部节点，保存最大步数
+
+            //添加层级数据
+            vDepth[step - 1].emplace_back(pRoot->val);
+
+
+            if (bak->left) {
+                bak->left = nullptr;
+            } else if (bak->right) {
+                bak->right = nullptr;
+            } else {//根节点无路可走，删光了
+                break;
+            }
+            delete pRoot;
+
+            pRoot = root;//从起点重新开始
+            step = 1;
+
+            continue;
+        }
+        step++;
+
+    }
+//    delete root;delete bak;
+
+    for (int i = 0; i < vDepth.size(); i++) {
+        vector<int> *curDepth = &vDepth[i];
+        if ((i + 1) % 2 == 0) {//偶数行
+            vector<int> temp;
+            while (!curDepth->empty()) {
+                temp.push_back(curDepth->back());
+                curDepth->pop_back();
+            }
+            vDepth[i] = temp;
+        }
+//        curDepth.clear();
+//        curDepth.shrink_to_fit();
+    }
+//    vDepth.clear();
+//    vDepth.shrink_to_fit();
+    return vDepth;
+}
+
+//树的子结构
+bool HasSubtree(TreeNode *pRoot1, TreeNode *pRoot2) {
+    if (!pRoot1 || !pRoot2) {
+        return false;
+    }
+    queue<TreeNode *> rootQue;
+    rootQue.push(pRoot1);
+    vector<TreeNode *> lefts;
+    while (!rootQue.empty()) {
+        TreeNode *cur = rootQue.front();
+        rootQue.pop();
+
+        if (cur->val == pRoot2->val) {
+            lefts.push_back(cur);
+        }
+
+        if (cur->left) {
+            rootQue.push(cur->left);
+        }
+        if (cur->right) {
+            rootQue.push(cur->right);
+        }
+    }
+    string right;
+    queue<TreeNode *> rightQue;
+    rightQue.push(pRoot2);
+    while (!rightQue.empty()) {
+        TreeNode *temp = rightQue.front();
+        rightQue.pop();
+        right += (std::to_string(temp->val) + " ");
+        if (temp->left) {
+            rightQue.push(temp->left);
+        }
+        if (temp->right) {
+            rightQue.push(temp->right);
+        }
+    }
+    bool has = false;
+    while (!lefts.empty()) {
+        TreeNode *cur = lefts.back();
+        lefts.pop_back();
+        string left;
+        queue<TreeNode *> leftQue;
+        leftQue.push(cur);
+        while (!leftQue.empty()) {
+            TreeNode *temp = leftQue.front();
+            leftQue.pop();
+            left += (std::to_string(temp->val) + " ");
+            if (temp->left) {
+                leftQue.push(temp->left);
+            }
+            if (temp->right) {
+                leftQue.push(temp->right);
+            }
+        }
+        has = left.find(right) != string::npos;
+        if (has) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool hasPath(vector<vector<char> > &matrix, string word) {
+    // write code here
+    int rowSize = matrix.size();
+    int colSize = matrix[0].size();
+
+    for (int i = 0; i < rowSize; ++i) {
+        vector<char> row = matrix[i];
+        for (int j = 0; j < colSize; ++j) {
+            char curLetter = row[j];
+
+            if (curLetter == word[0]) {
+
+            }
+
+        }
+    }
+}
+
+//合并两个有序列表，废弃
+ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
+    ListNode *head = new ListNode(-1), *bak = head;
+    while (list1 != nullptr || list2 != nullptr) {
+        //左链表小于右链表
+        if (list1 != nullptr && list1->val <= list2->val) {
+            head->next = new ListNode(list1->val);
+            list1 = list1->next;
+        }
+            //右链表小于左链表
+        else if (list2 != nullptr) {
+            head->next = new ListNode(list2->val);
+            list2 = list2->next;
+        }
+        head = head->next;
+    }
+    return bak->next;
+}
+
+
+//合并有序链表
+ListNode *merge(ListNode *head1, ListNode *head2) {
+    ListNode *dummyHead = new ListNode(0);
+    ListNode *temp = dummyHead, *temp1 = head1, *temp2 = head2;
+    while (temp1 != nullptr && temp2 != nullptr) {
+        if (temp1->val <= temp2->val) {
+            temp->next = temp1;
+            temp1 = temp1->next;
+        } else {
+            temp->next = temp2;
+            temp2 = temp2->next;
+        }
+        temp = temp->next;
+    }
+    if (temp1 != nullptr) {
+        temp->next = temp1;
+    } else if (temp2 != nullptr) {
+        temp->next = temp2;
+    }
+    return dummyHead->next;
+}
+
+//leetcode 148 归并排序 ->自底向上合并
+/*
+ * 思路为
+ * 1.先获取链表总长度
+ * 2.获取分治后每段块数：初始为1（自底向上），逐步*2，逐步合并有序链表
+ */
+//ListNode *sortList(ListNode *head) {
+//    int length = 0;
+//
+//    ListNode *bak = head;
+//    //获取链表总长
+//    while (head) {
+//        head = head->next;
+//        length++;
+//    }
+//    //有序段长度
+//    int segLength = 1;
+//
+//    //多少个有序段
+//    int segSum = length;
+//
+//
+//    while (segLength < length) {
+//
+//        //定位两个链表头，合并两个列表
+//        for (int i = 0; i < segSum; ++i) {
+//            ListNode *h1, *h2;
+//            //定位第一个表头
+//            if (i == 0) {
+//                h1 = bak;
+//            } else {
+//                //开始定位第二个表头，以段长为准
+//                h2 = h1;
+//                if (i != segSum - 1) {
+//                    for (int j = 0; j < segLength; ++j) {
+//                        h2 = h2->next;
+//                    }
+//                } else {
+//                    //最后一个表头
+//                }
+//
+//            }
+//
+//            merge(i,)
+//        }
+//    }
+//
+//    return nullptr;
+//}
+
+
+ListNode *sortList(ListNode *head) {
+    if (head == nullptr) {
+        return head;
+    }
+
+    int length = 0;
+    ListNode *node = head;
+    while (node != nullptr) {
+        length++;
+        node = node->next;
+    }
+    ListNode *dummyHead = new ListNode(0, head);
+
+    //分链长翻倍 1 2 4 8 16
+    for (int subLength = 1; subLength < length; subLength <<= 1) {
+        //链表指针，从头到尾 分治 合并
+        ListNode *prev = dummyHead, *curr = dummyHead->next;
+        while (curr != nullptr) {
+            ListNode *head1 = curr;
+            /*
+             * 为什么要以curr->next!=nullptr作为判断标准呢
+             */
+
+            //链表指针往后移动段长距离，curr->next != nullptr用来规避最后一段小于段长的情况
+            for (int i = 1; i < subLength && curr->next != nullptr; i++) {
+                curr = curr->next;
+            }
+
+            //第二个链表头
+            ListNode *head2 = curr->next;
+            //打断链表1，便于合并
+            curr->next = nullptr;
+            curr = head2;
+
+
+            //链表指针往后移动段长距离，curr!=nullptr用来规避curr->next为空的情况
+            for (int i = 1; i < subLength && curr != nullptr && curr->next != nullptr; i++) {
+                curr = curr->next;
+            }
+
+            //打断链表2
+            ListNode *next = nullptr;
+            if (curr != nullptr) {
+                next = curr->next;
+                curr->next = nullptr;
+            }
+            curr = next;
+
+
+            ListNode *merged = merge(head1, head2);
+            prev->next = merged;
+            while (prev->next != nullptr) {
+                prev = prev->next;
+            }
+        }
+    }
+    return dummyHead->next;
+}
+
+//148归并排序 我的
+ListNode *myMergeSort(ListNode *head) {
+    if (head == nullptr) {
+        return head;
+    }
+
+
+
+    ListNode *lengthNode = head;
+    int length = 0;
+    while (lengthNode) {
+        lengthNode = lengthNode->next;
+        length++;
+    }
+
+
+    ListNode *resultPre = new ListNode(0, head);
+
+    for (int segLength = 1; segLength < length; segLength <<= 1) {
+
+        ListNode *pre = resultPre, *curr = resultPre->next;
+
+        //从头至尾 分治 合并
+        while (curr) {
+            ListNode *head1 = curr;
+
+            for (int i = 1; i < segLength && curr->next; ++i) {
+                curr = curr->next;
+            }
+
+            //打断链1 并声明head2
+            ListNode *head2 = curr->next;
+            curr->next = nullptr;
+            curr = head2;
+
+            for (int i = 1; i < segLength && curr && curr->next; ++i) {
+                curr = curr->next;
+            }
+
+
+
+            if (head2) {
+                //打断链2
+                ListNode *cutTempNode2 = curr->next;
+                curr->next = nullptr;
+                curr = cutTempNode2;
+            }
+
+
+
+            pre->next = merge(head1, head2);
+            while (pre->next) {
+                pre = pre->next;
+            }
+
+
+        }
+
+
+    }
+    return resultPre->next;
+
+}
+ 
 
 int main(void) {
-    TreeNode *root = new TreeNode(1);
-    TreeNode *r2 = new TreeNode(2);
-    TreeNode *r3 = new TreeNode(3);
-    TreeNode *r4 = new TreeNode(4);
-    TreeNode *r5 = new TreeNode(5);
-    TreeNode *r6 = new TreeNode(6);
-    TreeNode *r7 = new TreeNode(7);
-    root->left = r2;
-    root->right = r3;
-    r2->left = r4;
-    r2->right = r5;
-    r5->left = r7;
-    r3->right = r6;
-    PrintFromTopToBottom(root);
+
+
+//    return 0;
+//    TreeNode *root = new TreeNode(1);
+//    TreeNode *r2 = new TreeNode(2);
+//    TreeNode *r3 = new TreeNode(3);
+//    TreeNode *r4 = new TreeNode(4);
+//    TreeNode *r5 = new TreeNode(5);
+//    TreeNode *r6 = new TreeNode(6);
+//    TreeNode *r7 = new TreeNode(7);
+//    TreeNode *ree = new TreeNode(9);
+//    root->left = r2;
+//    root->right = r3;
+//    r2->left = r4;
+//    r2->right = r5;
+//    r5->left = r7;
+//    r3->right = r6;
+//    printf("%d", HasSubtree(root, ree));
+
 //    printf("%d", max(nullptr, nullptr));
-//    int a1[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-//    int a2[1] = {5};
-//    ListNode *p1 = createListNode(a1, 13);;
+    int a1[4] = {4,2,1,3};
+//    int a2[3] = {1,3,4};
+    ListNode *p1 = createListNode(a1, 4);
+    ListNode *result = myMergeSort(p1);
+    printListNode(result);
+//    ListNode *p2 = createListNode(a2, 3);
+//    ListNode *result = mergeTwoLists(p1, p2);
+//    printListNode(result);
 //    auto temp = p1->next->next->next->next->next->next->next;
 //    auto back = p1;
 //    while (p1->next) {
